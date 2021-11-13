@@ -1116,7 +1116,7 @@ FinalizeSearchPhrase()
         IFS=',' read -r -a array <<< "$sites"
         for element in "${array[@]}"
         do
-        search_phrase+=" -site:${element} OR"
+        search_phrase+=" site:${element} OR"
         done
         search_phrase=${search_phrase%???}
     fi
@@ -1653,12 +1653,14 @@ GetImage_()
     if [[ $download_ok = true ]]; then
         action='check local image file size'
         actual_size=$(wc -c < "$targetimage_pathfileext"); actual_size=${actual_size##* }
-
+        dimensions_width=$(identify -format "%w" "$targetimage_pathfileext")
+        dimensions_height=$(identify -format "%h" "$targetimage_pathfileext")
         # http://stackoverflow.com/questions/36249714/parse-download-speed-from-wget-output-in-terminal
         download_speed=$(tail -n1 <<< "$response" | grep -o '\([0-9.]\+ [KM]B/s\)'); download_speed=${download_speed/K/k}
 
         DebugChildVal "$section" "$(DisplayThousands "$actual_size") bytes"
         DebugChildVal 'average download speed' "$download_speed"
+        DebugChildVal "$section width: $dimensions_width height: $dimensions_height" 
 
         if [[ $actual_size -lt $lower_size_bytes ]]; then
             UpdateRunLog "$section" "$action" "$actual_size" '1' 'too small'
